@@ -195,6 +195,10 @@ struct GameView: View {
         let newScore:Score = Score(userName: userName, score: scoreToAdd,date: Date.now,picture: picture)
         modelContext.insert(newScore)
         print(picture)
+        picture=""
+        userName=""
+        scoreToAdd=0
+        
     }
     
     func randomizeQuestions() {
