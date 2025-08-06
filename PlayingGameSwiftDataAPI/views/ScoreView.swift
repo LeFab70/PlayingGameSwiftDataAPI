@@ -15,15 +15,42 @@ struct ScoreView: View {
     @Environment(\.modelContext) private var modelContext
     var body: some View {
        NavigationView {
+          
            List {
                ForEach(scores) { score in
-                       VStack(alignment: .leading) {
-                           Text(score.userName)
-                               .font(.headline)
-                           Text("\(score.score)")
-                               .font(.subheadline)
-                               .foregroundColor(.secondary)
-                           .padding([.leading], 16)
+                   HStack(alignment: .center, spacing: 12) {
+                              if let urlString = score.picture, let url = URL(string: urlString){
+                                  AsyncImage(url: url) { image in
+                                      image
+                                          .resizable()
+                                          .aspectRatio(contentMode: .fit)
+                                  } placeholder: {
+                                      ProgressView()
+                                  }
+                                  .frame(width: 60, height: 60)
+                                  .clipShape(Circle())
+                              }
+                                else {
+                               // Image par défaut (fallback)
+                               Image(systemName: "person.crop.circle.fill")
+                                   .resizable()
+                                   .aspectRatio(contentMode: .fill)
+                                   .frame(width: 60, height: 60)
+                                   .foregroundColor(.gray)
+                                   .clipShape(Circle())
+                                }
+
+                       VStack(alignment: .leading, spacing: 4) {
+                                 Text(score.userName)
+                                     .font(.headline)
+                                  Text("Score:\(score.score)")
+                                      .font(.subheadline)
+                                      .foregroundColor(.secondary)
+                                  Text("At \(score.date.formatted(date: .abbreviated, time: .shortened))")
+                                      .font(.subheadline)
+                                      .foregroundColor(.secondary)
+                             
+                           }
                         }
                }
                .onDelete(perform: {IndexSet in
@@ -31,8 +58,17 @@ struct ScoreView: View {
                        self.modelContext.delete(self.scores[index])
                    }
                })
+               
+               Button("Clear All data") {
+                   for score in scores {
+                       modelContext.delete(score)
+                   }
+                   try? modelContext.save()
+               }
            }
            .navigationBarTitle("Scores")
+          
+           
         }
         
     }

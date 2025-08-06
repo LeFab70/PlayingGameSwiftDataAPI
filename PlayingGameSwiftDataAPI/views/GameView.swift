@@ -21,6 +21,9 @@ struct GameView: View {
     private let totalQuestions: Int = 5
     @State private var userName: String = ""
     @State var messageAlert:String=""
+    @State private var users:[String:Any]?
+    @Environment(\.modelContext) private var modelContext
+    @State private var picture:String=""
     var body: some View {
         ZStack{
               Image("backgroundImage")
@@ -49,6 +52,29 @@ struct GameView: View {
                             //  messageAlert="Please fill all fields"
                              // return
                          // }
+                          
+                          //github
+                          let gitService=GitHubService()
+                          guard !userName.isEmpty else {return}
+                          gitService.fetchUser(userName: userName){
+                              json in self.users=json
+                          }
+                          if let user=users{
+                              if let avatarUrl=user["avatar_url"] as? String{
+                                  picture=avatarUrl
+                                  //print(picture)
+                                  //UserDefaults.standard.set(avatarUrl, forKey: "avatarUrl")
+                              }
+                              
+                              messageAlert=""
+                            
+                          }
+                          else{
+                           messageAlert="No user found"
+                              return
+                          }
+                          
+                          
                           withAnimation(.easeInOut(duration: 0.5)){
                               self.gameStarted.toggle()
                               randomizeQuestions()
@@ -156,6 +182,21 @@ struct GameView: View {
           }
     }
     
+    func addScore() {
+       var scoreToAdd:Int = 0
+        switch score {
+            case 1...2:
+            scoreToAdd = self.score*10
+        case 3...5:
+            scoreToAdd = self.score*30
+        default:
+            scoreToAdd = 0
+        }
+        let newScore:Score = Score(userName: userName, score: scoreToAdd,date: Date.now,picture: picture)
+        modelContext.insert(newScore)
+        print(picture)
+    }
+    
     func randomizeQuestions() {
         let number1:Int = Int.random(in: 0...100)
         let number2:Int = Int.random(in: 0...100)
@@ -223,6 +264,8 @@ struct GameView: View {
             randomizeQuestions()
         } else {
             gameEnded = true
+            //save score dans swiftdata
+            addScore()
             timer.upstream.connect().cancel() // arrêter le timer
         }
     }
