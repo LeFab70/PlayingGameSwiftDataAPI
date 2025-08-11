@@ -11,7 +11,7 @@ import SwiftData
 struct ScoreView: View {
     //@Environment(\.dismiss) var dismiss
    // @Binding var selectedTab: Int
-    @Query private var scores: [Score]
+    @Query(sort:[SortDescriptor(\Score.score,order:.reverse),SortDescriptor(\Score.date)]) private var scores: [Score]
     @Environment(\.modelContext) private var modelContext
     var body: some View {
        NavigationView {

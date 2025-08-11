@@ -40,6 +40,7 @@ struct GameView: View {
                       
                       InputsView(inputUser: $userName, placeholder: "Entrez votre compte github", imageName: "person.circle")
                           .padding()
+                          .textInputAutocapitalization(.never)
                       
                       if !messageAlert.isEmpty{
                           Text(messageAlert)
